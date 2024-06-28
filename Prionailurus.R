@@ -115,9 +115,10 @@ rmm$data$occurrence$yearMax <- max(cleanOccs$year)
 rmm$data$occurrence$spatialAccuracy <- "Approximately 5000m uncertainty, maximum"
 
 set.seed(100)
-cleanOccs <- thin(loc.data = cleanOccs, long.col = "longitude", lat.col = "latitude", spec.col = "name",
-                   thin.par = 50, reps = 1, 
-                   write.files = FALSE, locs.thinned.list.return = TRUE)[[1]] # Thin to resolution of data
+cleanOccs <- thin(loc.data = cleanOccs, 
+                  long.col = "longitude", lat.col = "latitude", 
+                  spec.col = "name", thin.par = 50, reps = 1, out.dir = "data/", 
+                  locs.thinned.list.return = TRUE)[[1]] # Thin to resolution of data
 colnames(cleanOccs) <- c("longitude", "latitude")
 rmm$dataPrep$geographic$spatialThin$rule <- "Downsampled to a minimum distance of 50km to account for putative sampling bias in some regions (e.g. South Korea)."
 rmm$dataPrep$geographic$spatialThin$notes <- "Used voluModel::downsample()."
@@ -142,7 +143,6 @@ set.seed(42)
 bg <- bg[sample(1:nrow(bg), size = 50000, replace = F),]
 
 # Make model ----
-trainPreds <- stack(lapply(trainPreds, FUN = function(x) raster(x)))
 model <- ENMevaluate(occs = cleanOccs, envs = trainPreds, bg = bg, 
                      tune.args = list(fc = c("L","LQ","LQP","Q", "QP","P"), rm = 1:3), 
                      partitions = "block", 
@@ -206,6 +206,6 @@ writeRaster(rast(midCenturyProjNoMESS), "data/LeopardCatLateCentury.tif", overwr
 
 # Tying a bow on the rmm
 rmm$code$software$platform <- "R"
-rmm$code$software$fullCodeLink <- 
+rmm$code$software$fullCodeLink <- "https://github.com/hannahlowens/ENMworkflows2024/blob/main/Prionailurus.R"
 
 rmmCheckEmpty(rmm)

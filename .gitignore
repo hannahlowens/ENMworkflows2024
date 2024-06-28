@@ -1,6 +1,7 @@
 # History files
 .Rhistory
 .Rapp.history
+.DS_Store
 
 # Session Data files
 .RData
@@ -42,3 +43,4 @@ vignettes/*.pdf
 # Unnecessary data and files
 data/
 *.pdf
+*.xlsx
