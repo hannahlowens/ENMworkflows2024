@@ -10,10 +10,7 @@ library(CoordinateCleaner)
 library(voluModel)
 library(spThin)
 library(ENMeval)
-library(raster)
 library(dplyr)
-source("enm.maxnet.R") # From pending update to ENMeval, v2.0.5
-  #https://github.com/jamiemkass/ENMeval/blob/master/R/enm.maxnet.R
 
 rmm <- rmmTemplate(family = c("base", "maxent"))
 rmm$code$software$packages <- unique(rmmAutofillPackageCitation(rmm, (.packages()))$code$software$packages)
@@ -40,7 +37,7 @@ occs <- occQuery("Prionailurus bengalensis",
 occRefs <- occCitation(occs)
 
 rmm$data$occurrence$taxon <- occs@cleanedTaxonomy$`Best Match`
-rmm$data$occurrence$dataType <- c("Presence only")
+rmm$data$occurrence$dataType <- c("presence only")
 rmm$data$occurrence$sources <- sort(occRefs$occCitationResults$
                                       `Prionailurus bengalensis (Kerr, 1792)`$Citation)
 
@@ -121,7 +118,7 @@ cleanOccs <- thin(loc.data = cleanOccs,
                   locs.thinned.list.return = TRUE)[[1]] # Thin to resolution of data
 colnames(cleanOccs) <- c("longitude", "latitude")
 rmm$dataPrep$geographic$spatialThin$rule <- "Downsampled to a minimum distance of 50km to account for putative sampling bias in some regions (e.g. South Korea)."
-rmm$dataPrep$geographic$spatialThin$notes <- "Used voluModel::downsample()."
+rmm$dataPrep$geographic$spatialThin$notes <- "Used spThin::thin()."
 write.csv(cleanOccs, "data/LeopardCatCleanOccs.csv", row.names = FALSE)
 
 # Training region
@@ -173,39 +170,51 @@ opt.seq <- res %>%
   filter(auc.diff.avg == min(auc.diff.avg))
 write.csv(opt.seq, "data/LeopardCatFinalModelStats.csv", row.names = FALSE)
 rmm$model$selectionRules <- "Successive filtering: delta AIC less then 2, models with AUC training scores at least 75% of maximum AUC training score, remaining model with the lowest AUCdiff"
+rmm$assessment$trainingDataStats$AUC <- opt.seq$auc.train
+rmm$assessment$testingDataStats$AUCDiff <- opt.seq$auc.diff.avg
+rmm$assessment$trainingDataStats$AIC <- opt.seq$auc.diff.avg
 rmm$model$finalModelSettings <- paste("Feature classes: ", opt.seq$fc[[1]], 
                                       "; Regularization multiplier: ", opt.seq$rm[[1]])
 
 modelOpt <- eval.models(model)[[opt.seq$tune.args]]
 plot(modelOpt, type = "cloglog")
+rmm$assessment$notes <- "After examining response curves of preliminary plots, some environmental variables were removed due to lack of informativeness (i.e. they were nearly horizontal); statistics reported are for final model, AIC score reported is actually delta AICc."
 dev.off()
-modProj <-  eval.predictions(model)[[opt.seq$tune.args]]
+modProj <-  eval.predictions(model)
+modProj <- modProj[[names(modProj)== opt.seq$tune.args]]
 plot(modProj)
 points(eval.occs(model), pch = 21, bg = eval.occs.grp(model))
-writeRaster(rast(modProj), "data/LeopardCatPresent.tif", overwrite = TRUE)
+writeRaster(modProj, "data/LeopardCatPresent.tif", overwrite = TRUE)
 
 # Project model ----
+rmm$prediction$extrapolation <- "extrapolate function"
+rmm$prediction$transfer$notes <- "Climate model: HadGEM3-GC31-LL; mid-century: 2041-2060; late century: 2061-2080)"
 midCenturyTrain <- crop(midCentury, trainingRegion, mask = TRUE)
-midCenturyTrain <- stack(lapply(midCenturyTrain, FUN = function(x) raster(x)))
 names(midCenturyTrain) <- names(preds)
-midCenturyProj <- maxnet.predict(m = modelOpt, envs = midCenturyTrain, 
+midCenturyProj <- maxnet.predictRaster(m = modelOpt, envs = midCenturyTrain, 
                                  other.settings = model@other.settings)
+crs(midCenturyProj) <- crs(trainPreds)
 midCenturySim <- similarity(ref = trainPreds, midCenturyTrain)$similarity_min
-midCenturyProjNoMESS <- midCenturyProj * (midCenturySim >= 0)
-writeRaster(rast(midCenturyProjNoMESS), "data/LeopardCatMidCentury.tif", overwrite = TRUE)
+midCenturySim <- clamp(midCenturySim, lower=0, upper=Inf, values=FALSE)
+midCenturyProjNoMESS <- mask(midCenturyProj, mask = midCenturySim)
+writeRaster(midCenturyProjNoMESS, "data/LeopardCatMidCentury.tif", overwrite = TRUE)
 
 lateCenturyTrain <- crop(lateCentury, trainingRegion, mask = TRUE)
-lateCenturyTrain <- stack(lapply(lateCenturyTrain, FUN = function(x) raster(x)))
 names(lateCenturyTrain) <- names(preds)
-lateCenturyProj <- maxnet.predict(m = modelOpt, envs = lateCenturyTrain, 
-                                 other.settings = model@other.settings)
-lateCenturySim <- similarity(trainPreds, lateCenturyTrain)
+lateCenturyProj <- maxnet.predictRaster(m = modelOpt, envs = lateCenturyTrain, 
+                                       other.settings = model@other.settings)
+crs(lateCenturyProj) <- crs(trainPreds)
 lateCenturySim <- similarity(ref = trainPreds, lateCenturyTrain)$similarity_min
-lateCenturyProjNoMESS <- lateCenturyProj * (lateCenturySim >= 0)
-writeRaster(rast(midCenturyProjNoMESS), "data/LeopardCatLateCentury.tif", overwrite = TRUE)
+lateCenturySim <- clamp(lateCenturySim, lower=0, upper=Inf, values=FALSE)
+lateCenturyProjNoMESS <- mask(lateCenturyProj, mask = lateCenturySim)
+writeRaster(lateCenturyProjNoMESS, "data/LeopardCatLateCentury.tif", overwrite = TRUE)
 
 # Tying a bow on the rmm
 rmm$code$software$platform <- "R"
-rmm$code$software$fullCodeLink <- "https://github.com/hannahlowens/ENMworkflows2024/blob/main/Prionailurus.R"
+rmm$code$fullCodeLink <- "https://github.com/hannahlowens/ENMworkflows2024/blob/main/Prionailurus.R"
 
-rmmCheckEmpty(rmm)
+rmmCheckFinalize(rmm)
+cleanRmm <- rmmCleanNULLs(rmm)
+
+# Broken
+rmmToCSV(cleanRmm, "LeopardCatMetadata.csv")

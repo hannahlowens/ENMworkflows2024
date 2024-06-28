@@ -9,10 +9,7 @@ library(geodata)
 library(CoordinateCleaner)
 library(voluModel)
 library(ENMeval)
-library(raster)
 library(dplyr)
-source("enm.maxnet.R") # From pending update to ENMeval, v2.0.5
-#https://github.com/jamiemkass/ENMeval/blob/master/R/enm.maxnet.R
 
 rmm <- rmmTemplate(family = c("base", "maxent"))
 rmm$code$software$packages <- unique(rmmAutofillPackageCitation(rmm, (.packages()))$code$software$packages)
@@ -21,11 +18,15 @@ rmm$authorship$contact <- 'hannah.owens@sund.ku.dk'
 rmm$authorship$rmmName <- "Zamia prasina for Workflow Project"
 rmm$authorship$license <- "CC"
 rmm$authorship$contact <- "Hannah L. Owens, hannah.owens@sund.ku.dk"
+rmm$authorship$authorNotes <- "None"
+rmm$authorship$miscNotes <- "For Adam Smith workflows project"
+rmm$authorship$doi <- "None"
+rmm$authorship$relatedReferences <- "None"
 
 rmm$studyObjective$purpose <- c("prediction","projection")
 rmm$studyObjective$rangeType <- "potential"
 rmm$studyObjective$invasion <- "native"
-rmm$studyObjective$transfer <- "other"
+rmm$studyObjective$transfer <- "other;"
 
 # Get occurrences
 gbifLoginHLO <- GBIFLoginManager()
@@ -35,7 +36,7 @@ occs <- occQuery("Zamia prasina",
 occRefs <- occCitation(occs)
 
 rmm$data$occurrence$taxon <- occs@cleanedTaxonomy$`Best Match`
-rmm$data$occurrence$dataType <- c("Presence only")
+rmm$data$occurrence$dataType <- c("presence only")
 rmm$data$occurrence$sources <- sort(occRefs$occCitationResults$
                                       `Zamia prasina W.Bull`$Citation)
 
@@ -57,6 +58,7 @@ if(!file.exists("data/envtData/soil_world/pHresampled.tif")){
 preds <- c(bioClim,pHres)
 
 rmm$data$environment$variableNames <- names(preds)
+names(preds)[[5]] <- "surface_pH"
 rmm$data$environment$sources <- c("@article{https://doi.org/10.1002/joc.5086,
   author = {Fick, Stephen E. and Hijmans, Robert J.},
   title = {WorldClim 2: new 1-km spatial resolution climate surfaces for global land areas},
@@ -124,6 +126,7 @@ rmm$data$occurrence$spatialAccuracy <- "Approximately 5000m uncertainty, maximum
 cleanOccs <- downsample(cleanOccs, preds[[1]]) # Thin to resolution of data
 rmm$dataPrep$geographic$spatialThin$rule <- "Downsampled to resolution of training data (2.5 arcminutes)"
 rmm$dataPrep$geographic$spatialThin$notes <- "Used voluModel::downsample()."
+write.csv(cleanOccs, "data/CycadCleanOccs.csv", row.names = FALSE)
 
 # Training region
 trainingRegion <- vect(getDynamicAlphaHull(cleanOccs, coordHeaders = c("longitude", "latitude"), 
@@ -141,7 +144,6 @@ set.seed(42)
 bg <- bg[sample(1:nrow(bg), size = 10000, replace = F),]
 
 # Make model ----
-trainPreds <- stack(lapply(trainPreds, FUN = function(x) raster(x)))
 model <- ENMevaluate(occs = cleanOccs, envs = trainPreds, bg = bg, 
                      tune.args = list(fc = c("L","LQ","LQP","Q", "QP","P"), rm = 1:3), 
                      partitions = "block", 
@@ -150,39 +152,75 @@ model <- ENMevaluate(occs = cleanOccs, envs = trainPreds, bg = bg,
 rmm$model$algorithms <- "maxnet"
 rmm$model$speciesCount <- 1
 rmm$model$algorithmCitation <- toBibtex(citation("maxnet"))
+rmm$model$partition$partitionRule <- "Spatial blocks defined by k means clustering, k = 4."
+rmm$model$references <- c("@article{https://doi.org/10.1111/2041-210X.13628,
+  author = {Kass, Jamie M. and Muscarella, Robert and Galante, Peter J. and Bohl, Corentin L. and Pinilla-Buitrago, Gonzalo E. and Boria, Robert A. and Soley-Guardia, Mariano and Anderson, Robert P.},
+  title = {ENMeval 2.0: Redesigned for customizable and reproducible modeling of species’ niches and distributions},
+  journal = {Methods in Ecology and Evolution},
+  volume = {12},
+  number = {9},
+  pages = {1602-1608},
+  doi = {https://doi.org/10.1111/2041-210X.13628},
+  url = {https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/2041-210X.13628},
+  eprint = {https://besjournals.onlinelibrary.wiley.com/doi/pdf/10.1111/2041-210X.13628},
+  year = {2021}
+}")
 
-# Get fit statistics 
+# Get fit statistics and select "best" model
 res <- eval.results(model)
 opt.seq <- res %>% 
   filter(delta.AICc < 2) %>% 
-  filter(auc.val.avg > (.9 * max(auc.val.avg))) %>% 
+  filter(auc.train > (.75 * max(auc.train))) %>% 
   filter(auc.diff.avg == min(auc.diff.avg))
+write.csv(opt.seq, "data/LeopardCatFinalModelStats.csv", row.names = FALSE)
+rmm$model$selectionRules <- "Successive filtering: delta AIC less then 2, models with AUC training scores at least 75% of maximum AUC training score, remaining model with the lowest AUCdiff"
+rmm$assessment$trainingDataStats$AUC <- opt.seq$auc.train
+rmm$assessment$testingDataStats$AUCDiff <- opt.seq$auc.diff.avg
+rmm$assessment$trainingDataStats$AIC <- opt.seq$auc.diff.avg
+rmm$model$finalModelSettings <- paste("Feature classes: ", opt.seq$fc[[1]], 
+                                      "; Regularization multiplier: ", opt.seq$rm[[1]])
 
-# Select "best" model
 modelOpt <- eval.models(model)[[opt.seq$tune.args]]
 plot(modelOpt, type = "cloglog")
+rmm$assessment$notes <- "After examining response curves of preliminary plots, some environmental variables were removed due to lack of informativeness (i.e. they were nearly horizontal); statistics reported are for final model, AIC score reported is actually delta AICc."
 dev.off()
-modProj <-  eval.predictions(model)[[opt.seq$tune.args]]
+modProj <-  eval.predictions(model)
+modProj <- modProj[[names(modProj)== opt.seq$tune.args]]
 plot(modProj)
-points(eval.bg(model), pch = 3, col = eval.bg.grp(model), cex = 0.5)
 points(eval.occs(model), pch = 21, bg = eval.occs.grp(model))
+writeRaster(modProj, "data/CycadPresent.tif", overwrite = TRUE)
 
 # Project model ----
+rmm$prediction$extrapolation <- "extrapolate function"
+rmm$prediction$transfer$notes <- "Climate model: HadGEM3-GC31-LL; mid-century: 2041-2060; late century: 2061-2080); Soil surface pH at future time points assumed to be the same as present."
 midCenturyTrain <- crop(midCentury, trainingRegion, mask = TRUE)
-midCenturyTrain <- stack(lapply(midCenturyTrain, FUN = function(x) raster(x)))
+midCenturyTrain <- c(midCenturyTrain, trainPreds$surface_pH)
 names(midCenturyTrain) <- names(preds)
-midCenturyProj <- maxnet.predict(m = modelOpt, envs = midCenturyTrain, 
-                                 other.settings = model@other.settings)
+midCenturyProj <- maxnet.predictRaster(m = modelOpt, envs = midCenturyTrain, 
+                                       other.settings = model@other.settings)
+crs(midCenturyProj) <- crs(trainPreds)
 midCenturySim <- similarity(ref = trainPreds, midCenturyTrain)$similarity_min
-midCenturyProjNoMESS <- midCenturyProj * (midCenturySim >= 0)
-writeRaster(rast(midCenturyProjNoMESS), "data/CycadMidCentury.tif")
+midCenturySim <- clamp(midCenturySim, lower=0, upper=Inf, values=FALSE)
+midCenturyProjNoMESS <- mask(midCenturyProj, mask = midCenturySim)
+writeRaster(midCenturyProjNoMESS, "data/CycadMidCentury.tif", overwrite = TRUE)
 
 lateCenturyTrain <- crop(lateCentury, trainingRegion, mask = TRUE)
-lateCenturyTrain <- stack(lapply(lateCenturyTrain, FUN = function(x) raster(x)))
+lateCenturyTrain <- c(lateCenturyTrain, trainPreds$surface_pH)
 names(lateCenturyTrain) <- names(preds)
-lateCenturyProj <- maxnet.predict(m = modelOpt, envs = lateCenturyTrain, 
-                                  other.settings = model@other.settings)
-lateCenturySim <- similarity(trainPreds, lateCenturyTrain)
+lateCenturyProj <- maxnet.predictRaster(m = modelOpt, envs = lateCenturyTrain, 
+                                        other.settings = model@other.settings)
+crs(lateCenturyProj) <- crs(trainPreds)
 lateCenturySim <- similarity(ref = trainPreds, lateCenturyTrain)$similarity_min
-lateCenturyProjNoMESS <- lateCenturyProj * (lateCenturySim >= 0)
-writeRaster(rast(midCenturyProjNoMESS), "data/CycadLateCentury.tif")
+lateCenturySim <- clamp(lateCenturySim, lower=0, upper=Inf, values=FALSE)
+lateCenturyProjNoMESS <- mask(lateCenturyProj, mask = lateCenturySim)
+writeRaster(lateCenturyProjNoMESS, "data/CycadLateCentury.tif", overwrite = TRUE)
+
+# Tying a bow on the rmm
+rmm$code$software$platform <- "R"
+rmm$code$fullCodeLink <- "https://github.com/hannahlowens/ENMworkflows2024/blob/main/Zamia.R"
+
+rmmCheckFinalize(rmm)
+cleanRmm <- rmmCleanNULLs(rmm)
+
+# Broken
+rmmToCSV(cleanRmm, "CycadMetadata.csv")
