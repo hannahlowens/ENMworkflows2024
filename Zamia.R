@@ -193,6 +193,7 @@ writeRaster(modProj, "data/CycadPresent.tif", overwrite = TRUE)
 # Project model ----
 rmm$prediction$extrapolation <- "extrapolate function"
 rmm$prediction$transfer$notes <- "Climate model: HadGEM3-GC31-LL; mid-century: 2041-2060; late century: 2061-2080); Soil surface pH at future time points assumed to be the same as present."
+rmm$prediction$uncertainty$extrapolation <- "I used MESS (multivariate environmental similarity surface) maps to quantify environmental novelty in the transfer data and mask out any regions with MESS scores less than 0."
 midCenturyTrain <- crop(midCentury, trainingRegion, mask = TRUE)
 midCenturyTrain <- c(midCenturyTrain, trainPreds$surface_pH)
 names(midCenturyTrain) <- names(preds)
