@@ -33,7 +33,8 @@ rmm$studyObjective$transfer <- "other"
 gbifLoginHLO <- GBIFLoginManager()
 occs <- occQuery("Prionailurus bengalensis", 
                  GBIFLogin = gbifLoginHLO, 
-                 checkPreviousGBIFDownload = T, GBIFDownloadDirectory = "data/")
+                 checkPreviousGBIFDownload = T, 
+                 GBIFDownloadDirectory = "data/")
 occRefs <- occCitation(occs)
 
 rmm$data$occurrence$taxon <- occs@cleanedTaxonomy$`Best Match`
@@ -62,7 +63,8 @@ rmm$data$environment$sources <- c("@article{https://doi.org/10.1002/joc.5086,
 }")
 coordRef <- crs(bioClim, describe = TRUE)
 rmm$data$environment$projection <- paste0("Unprojected. Coordinate reference system: ", 
-                                          coordRef$name, " (", coordRef$authority, ": ", coordRef$code, ")")
+                                          coordRef$name, " (", coordRef$authority, ": ",
+                                          coordRef$code, ")")
 
 # Future data
 midCentury <- geodata::cmip6_world(model = "HadGEM3-GC31-LL", ssp = "585", time = "2041-2060", 
@@ -72,13 +74,6 @@ midCentury <- crop(midCentury, preds)
 lateCentury <- geodata::cmip6_world(model = "HadGEM3-GC31-LL", ssp = "585", time = "2061-2080", 
                                     var = "bioc", res = 2.5, path = "data/envtData/")[[bioClimVars]]
 lateCentury <- crop(lateCentury, preds)
-
-# Enter metadata
-rmm <- rmmAutofillEnvironment(rmm,preds,transfer=0) # for fitting environment
-rmm <- rmmAutofillEnvironment(rmm,midCentury,transfer=1) # for transfer environment 1
-rmm <- rmmAutofillEnvironment(rmm,lateCentury,transfer=2) # for transfer environment 2
-rmm$data$environment$yearMin <- 1970
-rmm$data$environment$yearMax <- 2000
 
 # Clean occurrences and make training region
 cleanOccs <- clean_coordinates(occs@occResults$`Prionailurus bengalensis (Kerr, 1792)`$
@@ -121,6 +116,11 @@ rmm$dataPrep$geographic$spatialThin$rule <- "Downsampled to a minimum distance o
 rmm$dataPrep$geographic$spatialThin$notes <- "Used spThin::thin()."
 write.csv(cleanOccs, "data/LeopardCatCleanOccs.csv", row.names = FALSE)
 
+# Enter metadata
+rmm <- rmmAutofillEnvironment(rmm,preds,transfer=0) # for fitting environment
+rmm$data$environment$yearMin <- 1970
+rmm$data$environment$yearMax <- 2000
+
 # Training region
 trainingRegion <- vect(getDynamicAlphaHull(cleanOccs, coordHeaders = c("longitude", "latitude"), 
                                       fraction = 1, partCount = 2, buff = 250000, verbose = T)[[1]])
@@ -140,12 +140,12 @@ set.seed(42)
 bg <- bg[sample(1:nrow(bg), size = 50000, replace = F),]
 
 # Make model ----
+rmm$model$algorithm <- "maxnet"
 model <- ENMevaluate(occs = cleanOccs, envs = trainPreds, bg = bg, 
                      tune.args = list(fc = c("L","LQ","LQP","Q", "QP","P"), rm = 1:3), 
                      partitions = "block", 
-                     algorithm = "maxnet", doClamp = FALSE, rmm = rmm,
+                     algorithm = "maxnet", doClamp = FALSE,
                      overlap = FALSE)
-rmm$model$algorithms <- "maxnet"
 rmm$model$speciesCount <- 1
 rmm$model$algorithmCitation <- toBibtex(citation("maxnet"))
 rmm$model$partition$partitionRule <- "Spatial blocks defined by k means clustering, k = 4."
@@ -192,12 +192,14 @@ rmm$prediction$transfer$notes <- "Climate model: HadGEM3-GC31-LL; mid-century: 2
 rmm$prediction$uncertainty$extrapolation <- "I used MESS (multivariate environmental similarity surface) maps to quantify environmental novelty in the transfer data and mask out any regions with MESS scores less than 0."
 midCenturyTrain <- crop(midCentury, trainingRegion, mask = TRUE)
 names(midCenturyTrain) <- names(preds)
+rmm <- rmmAutofillEnvironment(rmm,midCenturyTrain,transfer=1) # for transfer environment 1
 midCenturyProj <- maxnet.predictRaster(m = modelOpt, envs = midCenturyTrain, 
                                  other.settings = model@other.settings)
 crs(midCenturyProj) <- crs(trainPreds)
 midCenturySim <- similarity(ref = trainPreds, midCenturyTrain)$similarity_min
 midCenturySim <- clamp(midCenturySim, lower=0, upper=Inf, values=FALSE)
 midCenturyProjNoMESS <- mask(midCenturyProj, mask = midCenturySim)
+rmm$prediction$transfer$extrapolation <- "other"
 writeRaster(midCenturyProjNoMESS, "data/LeopardCatMidCentury.tif", overwrite = TRUE)
 
 lateCenturyTrain <- crop(lateCentury, trainingRegion, mask = TRUE)
@@ -208,11 +210,15 @@ crs(lateCenturyProj) <- crs(trainPreds)
 lateCenturySim <- similarity(ref = trainPreds, lateCenturyTrain)$similarity_min
 lateCenturySim <- clamp(lateCenturySim, lower=0, upper=Inf, values=FALSE)
 lateCenturyProjNoMESS <- mask(lateCenturyProj, mask = lateCenturySim)
+rmm <- rmmAutofillEnvironment(rmm,lateCenturyTrain,transfer=2) # for transfer environment 2
 writeRaster(lateCenturyProjNoMESS, "data/LeopardCatLateCentury.tif", overwrite = TRUE)
+rmm$prediction$uncertainty$notes <- "Areas identified as extrapolative (according to ENMeval::similarity()) were removed from future projections."
 
 # Tying a bow on the rmm
 rmm$code$software$platform <- "R"
 rmm$code$fullCodeLink <- "https://github.com/hannahlowens/ENMworkflows2024/blob/main/Prionailurus.R"
+rmm$code$codeNotes <- "Mac M2 silicon; OS Sonoma 14.5; R version 4.3.2"
+
 
 rmmCheckFinalize(rmm)
 cleanRmm <- rmmCleanNULLs(rmm)

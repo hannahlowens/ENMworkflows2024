@@ -1,0 +1,92 @@
+"Field 1","Field 2","Field 3","Entity","Value"
+"authorship","NA","NA","rmmName","Zamia prasina for Workflow Project"
+"authorship","NA","NA","names","Owens, Hannah L."
+"authorship","NA","NA","license","CC"
+"authorship","NA","NA","contact","Hannah L. Owens, hannah.owens@sund.ku.dk"
+"authorship","NA","NA","relatedReferences","None"
+"authorship","NA","NA","authorNotes","None"
+"authorship","NA","NA","miscNotes","For Adam Smith workflows project"
+"authorship","NA","NA","doi","None"
+"studyObjective","NA","NA","purpose","prediction; projection"
+"studyObjective","NA","NA","rangeType","potential"
+"studyObjective","NA","NA","invasion","native"
+"studyObjective","NA","NA","transfer","other"
+"data","occurrence","NA","taxon","Zamia prasina W.Bull"
+"data","occurrence","NA","dataType","presence only"
+"data","occurrence","NA","yearMin","1971"
+"data","occurrence","NA","yearMax","2024"
+"data","occurrence","NA","sources","Arriaga Weiss S L, Comisión nacional para el conocimiento y uso de la biodiversidad C (2024). Biodiversidad selecta de los humedales de Laguna de Términos - Pantanos de Centla (Plantas). Version 1.11. Comisión nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/ukbgkz.; Bijmoer R, Scherrenberg M, Creuwels J (2023). Naturalis Biodiversity Center (NL) - Botany. Naturalis Biodiversity Center. https://doi.org/10.15468/ib5ypt.; Carnevali Fernández Concha G, Comisión nacional para el conocimiento y uso de la biodiversidad C (2024). Depuración de la colección y base de datos del Herbario CICY. Fase IV. Version 1.17. Comisión nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/9pmytr.; Franck A R, Bornhorst K (2023). University of South Florida Herbarium (USF). Version 7.391. USF Water Institute. https://doi.org/10.15468/mdnmzb.; Hopkins M, Campos de Oliveira D (2015). Herbarium - Instituto Nacional de Pesquisas da Amazônia (INPA). Instituto Nacional de Pesquisas da Amazônia - INPA. https://doi.org/10.15468/5ictpz.; iNaturalist contributors, iNaturalist (2024). iNaturalist Research-grade Observations. iNaturalist.org. https://doi.org/10.15468/ab3s5x.; Natural History Museum, Vienna. Natural History Museum, Vienna - Herbarium W. https://doi.org/10.15468/5sl7sh.; Novelo Gutiérrez R, Comisión nacional para el conocimiento y uso de la biodiversidad C (2024). Digitalización y sistematización de las colecciones biológicas del INECOL (Herbario). Version 1.10. Comisión nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/w933ra.; Pérez Farrera M Á, Comisión nacional para el conocimiento y uso de la biodiversidad C (2024). Flora y vegetación de la región terrestre prioritaria Tacaná-Boquerón, Chiapas, México. Version 1.15. Comisión nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/itk4v9.; Rojas Soto O R, Comisión nacional para el conocimiento y uso de la biodiversidad C (2024). Distribución geográfica y ecológica potencial de las cícadas de México. Version 1.11. Comisión nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/ezxt5d.; Sánchez Cordero Dávila V, Comisión nacional para el conocimiento y uso de la biodiversidad C (2024). Digitalización y Sistematización de las Colecciones Biológicas Nacionales del Instituto de Biología, UNAM (Plantas vasculares). Comisión nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/9uut5l.; Teisher J, Stimmel H (2024). Tropicos MO Specimen Data. Missouri Botanical Garden. https://doi.org/10.15468/hja69f.; Teisher J, Stimmel H (2024). Tropicos Specimens Non-MO. Version 1.57. Missouri Botanical Garden. https://doi.org/10.15468/rxbp4w.; Vovides Papalouka A P, Comisión nacional para el conocimiento y uso de la biodiversidad C (2024). Base de datos de las cicadas mexicanas. Version 1.18. Comisión nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/fkj8it."
+"data","occurrence","NA","spatialAccuracy","Approximately 5000m uncertainty, maximum"
+"data","environment","NA","variableNames","wc2.1_2.5m_bio_1; wc2.1_2.5m_bio_6; wc2.1_2.5m_bio_12; wc2.1_2.5m_bio_14; surface_pH"
+"data","environment","NA","yearMin","1970"
+"data","environment","NA","yearMax","2000"
+"data","environment","NA","extentSet","xmin: -95.2916666666667; xmax: -85.7083333333333; ymin: 14.125; ymax: 21.625"
+"data","environment","NA","extentRule","Dynamic alpha hull fit around 100% of points (rangeBuilder::getDynamicAlphaHull()), buffered by 250km, unoccupied islands removed."
+"data","environment","NA","resolution","0.0416666666666666; 0.0416666666666667"
+"data","environment","NA","projection","Unprojected. Coordinate reference system: WGS 84 (EPSG: 4326)"
+"data","environment","NA","sources","@article{https://doi.org/10.1002/joc.5086,
+  author = {Fick, Stephen E. and Hijmans, Robert J.},
+  title = {WorldClim 2: new 1-km spatial resolution climate surfaces for global land areas},
+  journal = {International Journal of Climatology},
+  volume = {37},
+  number = {12},
+  pages = {4302-4315},
+  doi = {https://doi.org/10.1002/joc.5086},
+  url = {https://rmets.onlinelibrary.wiley.com/doi/abs/10.1002/joc.5086},
+  year = {2017}
+}; @Article{soil-7-217-2021,
+  AUTHOR = {Poggio, L. and de Sousa, L. M. and Batjes, N. H. and Heuvelink, G. B. M. and Kempen, B. and Ribeiro, E. and Rossiter, D.},
+  TITLE = {SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty},
+  JOURNAL = {SOIL},
+  VOLUME = {7},
+  YEAR = {2021},
+  NUMBER = {1},
+  PAGES = {217--240},
+  URL = {https://soil.copernicus.org/articles/7/217/2021/},
+  DOI = {10.5194/soil-7-217-2021}
+}"
+"data","environment","NA","notes","Surface pH resampled to match BioClim data."
+"data","transfer","environment1","resolution","0.0416666666666666; 0.0416666666666667"
+"data","transfer","environment1","extentSet","xmin: -95.2916666666667; xmax: -85.7083333333333; ymin: 14.125; ymax: 21.625"
+"data","transfer","environment2","resolution","0.0416666666666666; 0.0416666666666667"
+"data","transfer","environment2","extentSet","xmin: -95.2916666666667; xmax: -85.7083333333333; ymin: 14.125; ymax: 21.625"
+"dataPrep","NA","NA","dataPrepNotes","Additional prep: removed occurrences with uncertainty greater than 5km (approximate resolution of environmental data; removed occurrences before 1970; removed occurrence at longitude -92.2732, latitude  14.9893 after manual inspection of remaining data"
+"dataPrep","geographic","geographicalOutlierRemoval","rule","Remove if minimum distance to all other points is greater than 5 times interquantile range"
+"dataPrep","geographic","geographicalOutlierRemoval","notes","Default settings in coordinateCleaner::cleaned_coordinates()"
+"dataPrep","geographic","centroidRemoval","rule","Remove if <1000m from country centroid"
+"dataPrep","geographic","centroidRemoval","notes","Default settings in coordinateCleaner::cleaned_coordinates()"
+"dataPrep","geographic","spatialThin","rule","Downsampled to resolution of training data (2.5 arcminutes)"
+"dataPrep","geographic","spatialThin","notes","Used voluModel::downsample()."
+"dataPrep","biological","questionablePointRemoval","rule","latitude or longitude exactly 0; latitude or longitude an integer; latitude and longitude equal"
+"dataPrep","biological","questionablePointRemoval","notes","Default settings in coordinateCleaner::cleaned_coordinates()"
+"model","NA","NA","algorithmCitation","@Manual{,;   title = {maxnet: Fitting 'Maxent' Species Distribution Models with 'glmnet'},;   author = {Steven Phillips},;   year = {2021},;   note = {R package version 0.1.4},;   url = {https://CRAN.R-project.org/package=maxnet},; }"
+"model","NA","NA","speciesCount","1"
+"model","NA","NA","selectionRules","Successive filtering: delta AIC less then 2, models with AUC training scores at least 75% of maximum AUC training score, remaining model with the lowest AUCdiff"
+"model","NA","NA","finalModelSettings","Feature classes:  LQ ; Regularization multiplier:  1"
+"model","partition","NA","partitionRule","Spatial blocks defined by k means clustering, k = 4."
+"model","NA","NA","references","@article{https://doi.org/10.1111/2041-210X.13628,
+  author = {Kass, Jamie M. and Muscarella, Robert and Galante, Peter J. and Bohl, Corentin L. and Pinilla-Buitrago, Gonzalo E. and Boria, Robert A. and Soley-Guardia, Mariano and Anderson, Robert P.},
+  title = {ENMeval 2.0: Redesigned for customizable and reproducible modeling of species’ niches and distributions},
+  journal = {Methods in Ecology and Evolution},
+  volume = {12},
+  number = {9},
+  pages = {1602-1608},
+  doi = {https://doi.org/10.1111/2041-210X.13628},
+  url = {https://besjournals.onlinelibrary.wiley.com/doi/abs/10.1111/2041-210X.13628},
+  eprint = {https://besjournals.onlinelibrary.wiley.com/doi/pdf/10.1111/2041-210X.13628},
+  year = {2021}
+}"
+"model","NA","NA","algorithm","maxnet"
+"prediction","NA","NA","extrapolation","extrapolate function"
+"prediction","transfer","NA","notes","Climate model: HadGEM3-GC31-LL; scenario: SSP 585; mid-century: 2041-2060; late century: 2061-2080); Soil surface pH at future time points assumed to be the same as present."
+"prediction","transfer","NA","extrapolation","other"
+"prediction","uncertainty","NA","notes","Areas identified as extrapolative (according to ENMeval::similarity()) were removed from future projections."
+"prediction","uncertainty","NA","extrapolation","I used MESS (multivariate environmental similarity surface) maps to quantify environmental novelty in the transfer data and mask out any regions with MESS scores less than 0."
+"assessment","NA","NA","notes","After examining response curves of preliminary plots, some environmental variables were removed due to lack of informativeness (i.e. they were nearly horizontal); statistics reported are for final model, AIC score reported is actually delta AICc."
+"assessment","trainingDataStats","NA","AUC","0.739663736263736"
+"assessment","trainingDataStats","NA","AIC","0.148703540903541"
+"assessment","testingDataStats","NA","AUCDiff","0.148703540903541"
+"code","software","NA","platform","R"
+"code","software","NA","packages","@Manual{,  title = {dplyr: A Grammar of Data Manipulation},  author = {Hadley Wickham and Romain François and Lionel Henry and Kirill Müller and Davis Vaughan},  year = {2023},  note = {R package version 1.1.4},  url = {https://CRAN.R-project.org/package=dplyr},}; @Article{,  title = {ENMeval 2.0: Redesigned for customizable and reproducible modeling of species’ niches and distributions},  author = {J. M. Kass and R. Muscarella and P. J. Galante and C. L. Bohl and G. E. Pinilla-Buitrago and R. A. Boria and M. Soley-Guardia and R. P. Anderson},  journal = {Methods in Ecology and Evolution},  year = {2021},  volume = {12},  number = {9},  pages = {1602-1608},  url = {https://doi.org/10.1111/2041-210X.13628},}; @Manual{,  title = {{voluModel}: Modeling Species Distributions in Three Dimensions},  author = {Hannah L. Owens and Carsten Rahbek},  year = {2024},  note = {R package version 0.2.2},  url = {https://CRAN.R-project.org/package=voluModel},  doi = {10.5281/zenodo.7372599},}; @Article{,  title = {CoordinateCleaner: standardized cleaning of occurrence records from biological collection databases},  author = {Alexander Zizka and Daniele Silvestro and Tobias Andermann and Josue Azevedo and Camila {Duarte Ritter} and Daniel Edler and Harith Farooq and Andrei Herdean and Maria Ariza and Ruud Scharn and Sten Svanteson and Niklas Wengstrom and Vera Zizka and Alexandre Antonelli},  journal = {Methods in Ecology and Evolution},  number = {10},  pages = {-7},  year = {2019},  note = {R package version 3.0.1},  doi = {10.1111/2041-210X.13152},  url = {https://github.com/ropensci/CoordinateCleaner},}; @Manual{,  title = {geodata: Download Geographic Data},  author = {Robert J. Hijmans and Márcia Barbosa and Aniruddha Ghosh and Alex Mandel},  year = {2024},  note = {R package version 0.6-2},  url = {https://CRAN.R-project.org/package=geodata},}; @Article{,  title = {Coral snakes predict the evolution of mimicry across New World snakes},  author = {Alison {Davis Rabosky} and Christian Cox and Daniel Rabosky and Pascal Title and Iris Holmes and Anat Feldman and Jimmy McGuire},  journal = {Nature Communications},  year = {2016},  volume = {7},  pages = {11484},  doi = {10.1038/ncomms11484},}; @Manual{,  title = {terra: Spatial Data Analysis},  author = {Robert J. Hijmans},  year = {2024},  note = {R package version 1.7-78},  url = {https://CRAN.R-project.org/package=terra},}; @Manual{,  title = {occCite: Querying and Managing Large Biodiversity Occurrence Datasets},  author = {Hannah Owens and Cory Merow and Brian Maitner and Jamie Kass and Vijay Barve and Robert Guralnick},  year = {2024},  note = {R package version 0.5.7},  url = {https://CRAN.R-project.org/package=occCite},  doi = {10.5281/zenodo.6327707},}; @Manual{,  title = {rangeModelMetadata: Provides Templates for Metadata Files Associated with Species Range Models},  author = {Cory Merow and Brian Maitner and Hannah Owens and Jamie Kass and Brian Enquist and Rob Guralnik and Damaris Zurrell and Christian Koenig},  note = {R package version 0.1.4},}; @Manual{,  title = {R: A Language and Environment for Statistical Computing},  author = {{R Core Team}},  organization = {R Foundation for Statistical Computing},  address = {Vienna, Austria},  year = {2023},  url = {https://www.R-project.org/},}"
+"code","NA","NA","fullCodeLink","https://github.com/hannahlowens/ENMworkflows2024/blob/main/Zamia.R"
+"code","NA","NA","codeNotes","Mac M2 silicon; OS Sonoma 14.5; R version 4.3.2"

@@ -26,13 +26,14 @@ rmm$authorship$relatedReferences <- "None"
 rmm$studyObjective$purpose <- c("prediction","projection")
 rmm$studyObjective$rangeType <- "potential"
 rmm$studyObjective$invasion <- "native"
-rmm$studyObjective$transfer <- "other;"
+rmm$studyObjective$transfer <- "other"
 
 # Get occurrences
 gbifLoginHLO <- GBIFLoginManager()
 occs <- occQuery("Zamia prasina", 
                  GBIFLogin = gbifLoginHLO, 
-                 checkPreviousGBIFDownload = T, GBIFDownloadDirectory = "data/")
+                 checkPreviousGBIFDownload = T, 
+                 GBIFDownloadDirectory = "~/Dropbox/WorkflowsProject/data/")
 occRefs <- occCitation(occs)
 
 rmm$data$occurrence$taxon <- occs@cleanedTaxonomy$`Best Match`
@@ -41,24 +42,25 @@ rmm$data$occurrence$sources <- sort(occRefs$occCitationResults$
                                       `Zamia prasina W.Bull`$Citation)
 
 # Get environmental data ----
-if(!file.exists("data/envtData/soil_world/phh2o_0-5cm_mean_30s.tif")){
-  pH <- soil_world(var="phh2o", depth = 5, path = "data/envtData/")
-} else pH <- rast("data/envtData/soil_world/phh2o_0-5cm_mean_30s.tif")
+if(!file.exists("~/Dropbox/WorkflowsProject/data/envtData/soil_world/phh2o_0-5cm_mean_30s.tif")){
+  pH <- soil_world(var="phh2o", depth = 5, path = "~/Dropbox/WorkflowsProject/data/envtData/")
+} else pH <- rast("~/Dropbox/WorkflowsProject/data/envtData/soil_world/phh2o_0-5cm_mean_30s.tif")
 
-bioClim <- geodata::worldclim_global(var = "bio", res = 2.5, path = "data/envtData")
+bioClim <- geodata::worldclim_global(var = "bio", res = 2.5, path = "~/Dropbox/WorkflowsProject/data/envtData")
 bioClim <- crop(bioClim,c(-100,-85,10,25))
 bioClimVars <- c(1,6,12,14)
 bioClim <- bioClim[[bioClimVars]]
-if(!file.exists("data/envtData/soil_world/pHresampled.tif")){
+if(!file.exists("~/Dropbox/WorkflowsProject/data/envtData/soil_world/pHresampled.tif")){
   pHres <- resample(pH, bioClim, method = "bilinear", 
-                    filename = "data/envtData/soil_world/pHresampled.tif")
+                    filename = "~/Dropbox/WorkflowsProject/data/envtData/soil_world/pHresampled.tif")
 } else {
-  pHres <- rast("data/envtData/soil_world/pHresampled.tif")
+  pHres <- rast("~/Dropbox/WorkflowsProject/data/envtData/soil_world/pHresampled.tif")
 }
 preds <- c(bioClim,pHres)
 
 rmm$data$environment$variableNames <- names(preds)
 names(preds)[[5]] <- "surface_pH"
+rmm$data$environment$notes <- "Surface pH resampled to match BioClim data."
 rmm$data$environment$sources <- c("@article{https://doi.org/10.1002/joc.5086,
   author = {Fick, Stephen E. and Hijmans, Robert J.},
   title = {WorldClim 2: new 1-km spatial resolution climate surfaces for global land areas},
@@ -81,24 +83,23 @@ rmm$data$environment$sources <- c("@article{https://doi.org/10.1002/joc.5086,
   DOI = {10.5194/soil-7-217-2021}
 }" 
 )
+coordRef <- crs(bioClim, describe = TRUE)
+rmm$data$environment$projection <- paste0("Unprojected. Coordinate reference system: ", 
+                                          coordRef$name, " (", coordRef$authority, ": ",
+                                          coordRef$code, ")")
 
 # Future data
 midCentury <- geodata::cmip6_world(model = "HadGEM3-GC31-LL", ssp = "585", time = "2041-2060", 
-                                   var = "bioc", res = 2.5, path = "data/envtData/")[[bioClimVars]]
+                                   var = "bioc", res = 2.5, path = "~/Dropbox/WorkflowsProject/data/envtData/")[[bioClimVars]]
 
 midCentury <- crop(midCentury, preds)
-midCentury <- c(midCentury, preds$`phh2o_0-5cm`)
-lateCentury <- geodata::cmip6_world(model = "HadGEM3-GC31-LL", ssp = "585", time = "2061-2080", 
-                                    var = "bioc", res = 2.5, path = "data/envtData/")[[bioClimVars]]
+midCentury <- c(midCentury, preds$surface_pH)
+lateCentury <- geodata::cmip6_world(model = "HadGEM3-GC31-LL", ssp = "585", 
+                                    time = "2061-2080", 
+                                    var = "bioc", res = 2.5, 
+                                    path = "~/Dropbox/WorkflowsProject/data/envtData/")[[bioClimVars]]
 lateCentury <- crop(lateCentury, preds)
-lateCentury <- c(lateCentury, preds$`phh2o_0-5cm`)
-
-# Enter metadata
-rmm <- rmmAutofillEnvironment(rmm,preds,transfer=0) # for fitting environment
-rmm <- rmmAutofillEnvironment(rmm,midCentury,transfer=1) # for transfer environment 1
-rmm <- rmmAutofillEnvironment(rmm,lateCentury,transfer=2) # for transfer environment 2
-rmm$data$environment$yearMin <- 1970
-rmm$data$environment$yearMax <- 2000
+lateCentury <- c(lateCentury, preds$surface_pH)
 
 # Clean occurrences and make training region
 cleanOccs <- clean_coordinates(occs@occResults$`Zamia prasina W.Bull`$GBIF$OccurrenceTable,
@@ -126,7 +127,7 @@ rmm$data$occurrence$spatialAccuracy <- "Approximately 5000m uncertainty, maximum
 cleanOccs <- downsample(cleanOccs, preds[[1]]) # Thin to resolution of data
 rmm$dataPrep$geographic$spatialThin$rule <- "Downsampled to resolution of training data (2.5 arcminutes)"
 rmm$dataPrep$geographic$spatialThin$notes <- "Used voluModel::downsample()."
-write.csv(cleanOccs, "data/CycadCleanOccs.csv", row.names = FALSE)
+write.csv(cleanOccs, "~/Dropbox/WorkflowsProject/data/CycadCleanOccs.csv", row.names = FALSE)
 
 # Training region
 trainingRegion <- vect(getDynamicAlphaHull(cleanOccs, coordHeaders = c("longitude", "latitude"), 
@@ -138,18 +139,24 @@ trainingRegion <- disagg(trainingRegion)
 polysContainingPoints <- apply(relate(trainingRegion, occVect, "contains"),
                                MARGIN = 1, FUN = function(x) any(x))
 trainingRegion <- aggregate(trainingRegion[polysContainingPoints])
+writeVector(trainingRegion, "data/CycadTrainingRegion.shp", overwrite = TRUE)
 trainPreds <- crop(preds, trainingRegion, mask = TRUE)
 bg <- voluModel::mSampling2D(cleanOccs, trainPreds, mShp = trainingRegion)
 set.seed(42)
 bg <- bg[sample(1:nrow(bg), size = 10000, replace = F),]
 
+# Enter metadata
+rmm <- rmmAutofillEnvironment(rmm,trainPreds,transfer=0) # for fitting environment
+rmm$data$environment$yearMin <- 1970
+rmm$data$environment$yearMax <- 2000
+
 # Make model ----
+rmm$model$algorithm <- "maxnet"
 model <- ENMevaluate(occs = cleanOccs, envs = trainPreds, bg = bg, 
                      tune.args = list(fc = c("L","LQ","LQP","Q", "QP","P"), rm = 1:3), 
                      partitions = "block", 
-                     algorithm = "maxnet", doClamp = FALSE, rmm = rmm,
+                     algorithm = "maxnet", doClamp = FALSE,
                      overlap = FALSE)
-rmm$model$algorithms <- "maxnet"
 rmm$model$speciesCount <- 1
 rmm$model$algorithmCitation <- toBibtex(citation("maxnet"))
 rmm$model$partition$partitionRule <- "Spatial blocks defined by k means clustering, k = 4."
@@ -172,7 +179,7 @@ opt.seq <- res %>%
   filter(delta.AICc < 2) %>% 
   filter(auc.train > (.75 * max(auc.train))) %>% 
   filter(auc.diff.avg == min(auc.diff.avg))
-write.csv(opt.seq, "data/LeopardCatFinalModelStats.csv", row.names = FALSE)
+write.csv(opt.seq, "~/Dropbox/WorkflowsProject/data/CycadFinalModelStats.csv", row.names = FALSE)
 rmm$model$selectionRules <- "Successive filtering: delta AIC less then 2, models with AUC training scores at least 75% of maximum AUC training score, remaining model with the lowest AUCdiff"
 rmm$assessment$trainingDataStats$AUC <- opt.seq$auc.train
 rmm$assessment$testingDataStats$AUCDiff <- opt.seq$auc.diff.avg
@@ -188,14 +195,14 @@ modProj <-  eval.predictions(model)
 modProj <- modProj[[names(modProj)== opt.seq$tune.args]]
 plot(modProj)
 points(eval.occs(model), pch = 21, bg = eval.occs.grp(model))
-writeRaster(modProj, "data/CycadPresent.tif", overwrite = TRUE)
+writeRaster(modProj, "~/Dropbox/WorkflowsProject/data/CycadPresent.tif", overwrite = TRUE)
 
 # Project model ----
 rmm$prediction$extrapolation <- "extrapolate function"
-rmm$prediction$transfer$notes <- "Climate model: HadGEM3-GC31-LL; mid-century: 2041-2060; late century: 2061-2080); Soil surface pH at future time points assumed to be the same as present."
+rmm$prediction$transfer$notes <- "Climate model: HadGEM3-GC31-LL; scenario: SSP 585; mid-century: 2041-2060; late century: 2061-2080); Soil surface pH at future time points assumed to be the same as present."
 rmm$prediction$uncertainty$extrapolation <- "I used MESS (multivariate environmental similarity surface) maps to quantify environmental novelty in the transfer data and mask out any regions with MESS scores less than 0."
 midCenturyTrain <- crop(midCentury, trainingRegion, mask = TRUE)
-midCenturyTrain <- c(midCenturyTrain, trainPreds$surface_pH)
+rmm <- rmmAutofillEnvironment(rmm,midCenturyTrain,transfer=1) # for transfer environment 1
 names(midCenturyTrain) <- names(preds)
 midCenturyProj <- maxnet.predictRaster(m = modelOpt, envs = midCenturyTrain, 
                                        other.settings = model@other.settings)
@@ -203,25 +210,28 @@ crs(midCenturyProj) <- crs(trainPreds)
 midCenturySim <- similarity(ref = trainPreds, midCenturyTrain)$similarity_min
 midCenturySim <- clamp(midCenturySim, lower=0, upper=Inf, values=FALSE)
 midCenturyProjNoMESS <- mask(midCenturyProj, mask = midCenturySim)
-writeRaster(midCenturyProjNoMESS, "data/CycadMidCentury.tif", overwrite = TRUE)
+rmm$prediction$transfer$extrapolation <- "other"
+writeRaster(midCenturyProjNoMESS, "~/Dropbox/WorkflowsProject/data/CycadMidCentury.tif", overwrite = TRUE)
 
 lateCenturyTrain <- crop(lateCentury, trainingRegion, mask = TRUE)
-lateCenturyTrain <- c(lateCenturyTrain, trainPreds$surface_pH)
 names(lateCenturyTrain) <- names(preds)
+rmm <- rmmAutofillEnvironment(rmm,lateCenturyTrain,transfer=2) # for transfer environment 2
 lateCenturyProj <- maxnet.predictRaster(m = modelOpt, envs = lateCenturyTrain, 
                                         other.settings = model@other.settings)
 crs(lateCenturyProj) <- crs(trainPreds)
 lateCenturySim <- similarity(ref = trainPreds, lateCenturyTrain)$similarity_min
 lateCenturySim <- clamp(lateCenturySim, lower=0, upper=Inf, values=FALSE)
 lateCenturyProjNoMESS <- mask(lateCenturyProj, mask = lateCenturySim)
-writeRaster(lateCenturyProjNoMESS, "data/CycadLateCentury.tif", overwrite = TRUE)
+writeRaster(lateCenturyProjNoMESS, "~/Dropbox/WorkflowsProject/data/CycadLateCentury.tif", overwrite = TRUE)
+
+rmm$prediction$uncertainty$notes <- "Areas identified as extrapolative (according to ENMeval::similarity()) were removed from future projections."
 
 # Tying a bow on the rmm
 rmm$code$software$platform <- "R"
 rmm$code$fullCodeLink <- "https://github.com/hannahlowens/ENMworkflows2024/blob/main/Zamia.R"
+rmm$code$codeNotes <- "Mac M2 silicon; OS Sonoma 14.5; R version 4.3.2"
 
 rmmCheckFinalize(rmm)
 cleanRmm <- rmmCleanNULLs(rmm)
 
-# Broken
 rmmToCSV(cleanRmm, "CycadMetadata.csv")
