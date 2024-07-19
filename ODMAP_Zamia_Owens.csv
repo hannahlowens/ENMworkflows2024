@@ -1,0 +1,85 @@
+section,subsection,element,Value
+Overview,Authorship,Study title,Zamia prasina for Smith Workflows Project
+Overview,Authorship,Author names,Hannah Owens
+Overview,Authorship,Contact ,hannah.owens@gmail.com
+Overview,Authorship,Study link,https://github.com/hannahlowens/ENMworkflows2024
+Overview,Model objective,Model objective,Forecast and transfer
+Overview,Model objective,Target output,continuous habitat suitability index
+Overview,Focal Taxon,Focal Taxon,Zamia prasina
+Overview,Location,Location,Central America
+Overview,Scale of Analysis,Spatial extent,"-95, -86, 14, 22 (xmin, xmax, ymin, ymax)"
+Overview,Scale of Analysis,Spatial resolution,5
+Overview,Scale of Analysis,Temporal extent,1970 to 2100
+Overview,Scale of Analysis,Temporal resolution,~ 30 years
+Overview,Scale of Analysis,Boundary,natural
+Overview,Biodiversity data,Observation type,citizen science; field survey
+Overview,Biodiversity data,Response data type,presence-only
+Overview,Predictors,Predictor types,climatic; edaphic
+Overview,Hypotheses,Hypotheses,Environment correlated with occurrence
+Overview,Assumptions,Model assumptions,"All areas of training region accessible, not limited by biotic interactions, able to colonize future suitable conditions"
+Overview,Algorithms,Modelling techniques,maxnet
+Overview,Algorithms,Model complexity,Best fit to data
+Overview,Algorithms,Model averaging,No
+Overview,Workflow,Model workflow,"Download and clean occurrence data, generate training region from occurrences, clip predictors to training region, train model using ENMeval, project best-fit model to future conditions at mid-century and late-century"
+Overview,Software,Software,"Mac M2 silicon; OS Sonoma 14.5; R version 4.3.2; Packages: rangeModelMetadata, occCite, terra, rangeBuilder, geodata, CoordinateCleaner, voluModel, ENMeval, dplyr"
+Overview,Software,Code availability,Code here: https://github.com/hannahlowens/ENMworkflows2024/blob/main/Zamia.R
+Overview,Software,Data availability,Public; downloaded via provided code
+Data,Biodiversity data,Taxon names,Zamia prasina W. Bull
+Data,Biodiversity data,Taxonomic reference system,Best match to GBIF taxonomy
+Data,Biodiversity data,Ecological level,individuals
+Data,Biodiversity data,Data sources,"GBIF.org; Detailed sources: Arriaga Weiss S L, Comisi√≥n nacional para el conocimiento y uso de la biodiversidad C (2024). Biodiversidad selecta de los humedales de Laguna de T√©rminos - Pantanos de Centla (Plantas). Version 1.11. Comisi√≥n nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/ukbgkz.; Bijmoer R, Scherrenberg M, Creuwels J (2023). Naturalis Biodiversity Center (NL) - Botany. Naturalis Biodiversity Center. https://doi.org/10.15468/ib5ypt.; Carnevali Fern√°ndez Concha G, Comisi√≥n nacional para el conocimiento y uso de la biodiversidad C (2024). Depuraci√≥n de la colecci√≥n y base de datos del Herbario CICY. Fase IV. Version 1.17. Comisi√≥n nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/9pmytr.; Franck A R, Bornhorst K (2023). University of South Florida Herbarium (USF). Version 7.391. USF Water Institute. https://doi.org/10.15468/mdnmzb.; Hopkins M, Campos de Oliveira D (2015). Herbarium - Instituto Nacional de Pesquisas da Amaz√¥nia (INPA). Instituto Nacional de Pesquisas da Amaz√¥nia - INPA. https://doi.org/10.15468/5ictpz.; iNaturalist contributors, iNaturalist (2024). iNaturalist Research-grade Observations. iNaturalist.org. https://doi.org/10.15468/ab3s5x.; Natural History Museum, Vienna. Natural History Museum, Vienna - Herbarium W. https://doi.org/10.15468/5sl7sh.; Novelo Guti√©rrez R, Comisi√≥n nacional para el conocimiento y uso de la biodiversidad C (2024). Digitalizaci√≥n y sistematizaci√≥n de las colecciones biol√≥gicas del INECOL (Herbario). Version 1.10. Comisi√≥n nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/w933ra.; P√©rez Farrera M √Å, Comisi√≥n nacional para el conocimiento y uso de la biodiversidad C (2024). Flora y vegetaci√≥n de la regi√≥n terrestre prioritaria Tacan√°-Boquer√≥n, Chiapas, M√©xico. Version 1.15. Comisi√≥n nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/itk4v9.; Rojas Soto O R, Comisi√≥n nacional para el conocimiento y uso de la biodiversidad C (2024). Distribuci√≥n geogr√°fica y ecol√≥gica potencial de las c√≠cadas de M√©xico. Version 1.11. Comisi√≥n nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/ezxt5d.; S√°nchez Cordero D√°vila V, Comisi√≥n nacional para el conocimiento y uso de la biodiversidad C (2024). Digitalizaci√≥n y Sistematizaci√≥n de las Colecciones Biol√≥gicas Nacionales del Instituto de Biolog√≠a, UNAM (Plantas vasculares). Comisi√≥n nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/9uut5l.; Teisher J, Stimmel H (2024). Tropicos MO Specimen Data. Missouri Botanical Garden. https://doi.org/10.15468/hja69f.; Teisher J, Stimmel H (2024). Tropicos Specimens Non-MO. Version 1.57. Missouri Botanical Garden. https://doi.org/10.15468/rxbp4w.; Vovides Papalouka A P, Comisi√≥n nacional para el conocimiento y uso de la biodiversidad C (2024). Base de datos de las cicadas mexicanas. Version 1.18. Comisi√≥n nacional para el conocimiento y uso de la biodiversidad. https://doi.org/10.15468/fkj8it."
+Data,Biodiversity data,Sampling design,None
+Data,Biodiversity data,Sample size,143 observations in final dataset
+Data,Biodiversity data,Clipping,None
+Data,Biodiversity data,Scaling,"Approximately 5000m uncertainty, maximum; Downsampled raw occurrences to 5000m resolution after cleaning"
+Data,Biodiversity data,Cleaning,Remove if minimum distance to all other points is greater than 5 times interquantile range (Default settings in coordinateCleaner::cleaned_coordinates()); Remove if <1000m from country centroid (Default settings in coordinateCleaner::cleaned_coordinates());  Downsampled to resolution of training data (2.5 arcminutes)(Used voluModel::downsample());  latitude or longitude exactly 0; latitude or longitude an integer; latitude and longitude equal (Default settings in coordinateCleaner::cleaned_coordinates())
+Data,Biodiversity data,Absence data,N/A
+Data,Biodiversity data,Background data,"1000 random background points drawn from training region (Dynamic alpha hull fit around 100% of points (rangeBuilder::getDynamicAlphaHull()), buffered by 250km, unoccupied islands removed.)"
+Data,Biodiversity data,Errors and biases,"Sampling bias--most of source data comes from citizen science, biased toward areas easily accessed by people"
+Data,Data partitioning,Training data,"partioned using patial blocks defined by k means clustering, k = 4."
+Data,Data partitioning,Validation data,N/A
+Data,Data partitioning,Test data,N/A
+Data,Predictor variables,Predictor variables,"Worldclim: Bio1, Bio6, Bio12, Bio14; SoilGrids 2.0: Surface pH"
+Data,Predictor variables,Data sources,"BioClim version 2, SoilGrids 2.0; accessed in 2024 via geodata R package"
+Data,Predictor variables,Spatial extent,"-95, -86, 14, 22 (xmin, xmax, ymin, ymax)"
+Data,Predictor variables,Spatial resolution,2.5 Arcminutes
+Data,Predictor variables,Coordinate reference system,EPSG 4326
+Data,Predictor variables,Temporal extent,1970-2000
+Data,Predictor variables,Temporal resolution,30 year climatology
+Data,Predictor variables,Data processing,Soil pH resampled to match BioClim layers; Soil pH assumed to be constant from beginning to end of study (i.e. through 2080)
+Data,Predictor variables,Errors and biases,"Spatially interpolated from weather station data, Figure 2 in Fick, S.E. and Hijmans, R.J. (2017), WorldClim 2: new 1-km spatial resolution climate surfaces for global land areas. Int. J. Climatol, 37: 4302-4315. https://doi.org/10.1002/joc.5086"
+Data,Predictor variables,Dimension reduction,N/A
+Data,Transfer data,Data sources,"Accessed via geodata R package in 2024; climate model: HadGEM3-GC31-LL, scenario: SSP 585"
+Data,Transfer data,Spatial extent,"-95, -86, 14, 22 (xmin, xmax, ymin, ymax)"
+Data,Transfer data,Spatial resolution,2.5 Arcminutes
+Data,Transfer data,Temporal extent,20 year climatologies from 2041 to 2060 and 2061 to 2080
+Data,Transfer data,Temporal resolution,N/A
+Data,Transfer data,Models and scenarios,Model: HadGEM3-GC31-LL; Scenario SSP 585
+Data,Transfer data,Data processing,N/A
+Data,Transfer data,Quantification of Novelty,Multivariate environmental similarity surface as implemented in ENMeval::similarity()
+Model,Variable pre-selection,Variable pre-selection,Selected a priori based on some knowledge of species and prior knowledge of variable performance for modeling
+Model,Multicollinearity,Multicollinearity,Correlation among variables selected a priori calculated; initial variables with 0.7 Pearson correlation were thinned so that simplest variable remained
+Model,Model settings,Model settings (fitting),"maxnet: Feature classes (""L"",""LQ"",""LQP"",""Q"", ""QP"",""P""), Regularization multiplier (1,2,3), doClamp (False)"
+Model,Model settings,Model settings (extrapolation),No clamping
+Model,Model estimates,Coefficients,N/A
+Model,Model estimates,Parameter uncertainty,N/A
+Model,Model estimates,Variable importance,N/A
+Model,Model selection - model averaging - ensembles,Model selection,"Successive filtering: delta AIC less then 2, models with AUC training scores at least 75% of maximum AUC training score, remaining model with the lowest AUCdiff"
+Model,Model selection - model averaging - ensembles,Model averaging,N/A
+Model,Model selection - model averaging - ensembles,Model ensembles,N/A
+Model,Analysis and Correction of non-independence,Spatial autocorrelation,N/A
+Model,Analysis and Correction of non-independence,Temporal autocorrelation,N/A
+Model,Analysis and Correction of non-independence,Nested data,N/A
+Model,Threshold selection,Threshold selection,N/A
+Assessment,Performance statistics,Performance on training data,AIC
+Assessment,Performance statistics,Performance on validation data,delta AIC; AUC train; AUC difference
+Assessment,Performance statistics,Performance on test data,N/A
+Assessment,Plausibility check,Response shapes,Response plots
+Assessment,Plausibility check,Expert judgement,map display
+Prediction,Prediction output,Prediction unit,Relative Suitability
+Prediction,Prediction output,Post-processing,N/A
+Prediction,Uncertainty quantification,Algorithmic uncertainty,N/A
+Prediction,Uncertainty quantification,Input data uncertainty,N/A
+Prediction,Uncertainty quantification,Parameter uncertainty,N/A
+Prediction,Uncertainty quantification,Scenario uncertainty,"Climate model, climate scenario"
+Prediction,Uncertainty quantification,Novel environments,Mask to areas within training region and without extrapolation according to MESS
